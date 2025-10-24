@@ -30,11 +30,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.motion.android.R
+import app.motion.android.ui.theme.playwriteUsModern
 
 @Composable // Digunakan untuk mendeklarasikan sebuah fungsi composable
 @Preview // Digunakan untuk menampilkan preview dari sebuah fungsi composable
@@ -60,6 +63,13 @@ fun LoginScreen() {
             "member" to "member"
         )
 
+        Text(
+            text = "Motion Laboratory",
+            fontSize = 36.sp,
+            fontWeight = FontWeight.Light,
+            fontFamily = playwriteUsModern
+        )
+        Spacer(Modifier.height(64.dp))
         Image(
             painter = painterResource(R.drawable.img_motion),
             contentDescription = "Motion logo",
