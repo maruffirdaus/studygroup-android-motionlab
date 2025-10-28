@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,10 +27,10 @@ fun RegisterButton(
     Box(
         modifier = Modifier
             .width(96.dp)
-            .height(96.dp)
-            .clip(RoundedCornerShape(8.dp)) // Urutan pemanggilan Modifier berpengaruh
+            .height(48.dp)
+            .clip(RoundedCornerShape(20.dp)) // Urutan pemanggilan Modifier berpengaruh
             .background(Color(0xFFF82F1E))
-            .border(1.dp, Color(0xFF000000), RoundedCornerShape(8.dp))
+            .border(1.dp, Color(0xFF000000), RoundedCornerShape(20.dp))
             .clickable {
                 onClick()
             },
@@ -40,8 +39,25 @@ fun RegisterButton(
         Box(
             modifier = Modifier
                 .size(48.dp)
-                .clip(CircleShape)
+                .clip(
+                    RoundedCornerShape(
+                        topEnd = 20.dp,
+                        bottomEnd = 20.dp
+                    )
+                )
+                .background(Color(0x80E9A319))
+        )
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(
+                    RoundedCornerShape(
+                        topEnd = 20.dp,
+                        bottomEnd = 20.dp
+                    )
+                )
                 .background(Color(0xFFE9A319))
+                .align(Alignment.CenterStart) // Alignment dapat di-override dengan menggunakan Modifier.align()
         )
         Text(
             text = "Register",
