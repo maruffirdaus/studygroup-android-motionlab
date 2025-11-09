@@ -1,7 +1,7 @@
 package app.motion.android.common.model
 
 data class Schedule(
-    val subject: Subject,
-    val day: String,
+    val lesson: Lesson,
+    val date: String,
     val time: String
 )

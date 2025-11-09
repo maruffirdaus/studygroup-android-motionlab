@@ -24,14 +24,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import app.motion.android.common.model.Schedule
-import app.motion.android.common.model.Subject
+import app.motion.android.common.model.Lesson
 import app.motion.android.ui.theme.MotionAppTheme
 
 @Composable
-fun AddScheduleDialog(
-    onSave: (Schedule) -> Unit,
-    onDismissRequest: () -> Unit
+fun AddEditScheduleDialog(
+    onAdd: (Schedule) -> Unit,
+    onEdit: (Schedule) -> Unit,
+    onDismissRequest: () -> Unit,
+    schedule: Schedule? = null
 ) {
+    val isEdit = schedule != null
+
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
@@ -41,44 +45,48 @@ fun AddScheduleDialog(
                 .background(Color.White)
                 .padding(24.dp)
         ) {
-            var subjectName by remember { mutableStateOf("") }
-            var subjectTeacher by remember { mutableStateOf("") }
-            var day by remember { mutableStateOf("") }
-            var time by remember { mutableStateOf("") }
+            var lessonName by remember { mutableStateOf(schedule?.lesson?.name ?: "") }
+            var lessonMentor by remember { mutableStateOf(schedule?.lesson?.mentor ?: "") }
+            var date by remember { mutableStateOf(schedule?.date ?: "") }
+            var time by remember { mutableStateOf(schedule?.time ?: "") }
 
             Text(
-                text = "Add schedule",
+                text = if (isEdit) {
+                    "Edit schedule"
+                } else {
+                    "Add schedule"
+                },
                 fontSize = 24.sp,
                 fontWeight = FontWeight.ExtraBold
             )
             Spacer(Modifier.height(16.dp))
             OutlinedTextField(
-                value = subjectName,
+                value = lessonName,
                 onValueChange = { value ->
-                    subjectName = value
+                    lessonName = value
                 },
                 label = {
-                    Text("Subject name")
+                    Text("Lesson name")
                 },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
-                value = subjectTeacher,
+                value = lessonMentor,
                 onValueChange = { value ->
-                    subjectTeacher = value
+                    lessonMentor = value
                 },
                 label = {
-                    Text("Subject teacher")
+                    Text("Lesson mentor")
                 },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
-                value = day,
+                value = date,
                 onValueChange = { value ->
-                    day = value
+                    date = value
                 },
                 label = {
-                    Text("Day")
+                    Text("Date")
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -95,15 +103,19 @@ fun AddScheduleDialog(
             Spacer(Modifier.height(24.dp))
             Button(
                 onClick = {
-                    val schedule = Schedule(
-                        subject = Subject(
-                            name = subjectName,
-                            teacher = subjectTeacher
+                    val newSchedule = Schedule(
+                        lesson = Lesson(
+                            name = lessonName,
+                            mentor = lessonMentor
                         ),
-                        day = day,
+                        date = date,
                         time = time
                     )
-                    onSave(schedule)
+                    if (isEdit) {
+                        onEdit(newSchedule)
+                    } else {
+                        onAdd(newSchedule)
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -115,10 +127,11 @@ fun AddScheduleDialog(
 
 @Composable
 @Preview
-private fun AddScheduleDialogPreview() {
+private fun AddEditScheduleDialogPreview() {
     MotionAppTheme {
-        AddScheduleDialog(
-            onSave = {},
+        AddEditScheduleDialog(
+            onAdd = {},
+            onEdit = {},
             onDismissRequest = {}
         )
     }

@@ -1,6 +1,7 @@
 package app.motion.android.ui.schedule
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,17 +13,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,7 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.motion.android.common.model.Schedule
-import app.motion.android.common.model.Subject
+import app.motion.android.common.model.Lesson
+import kotlinx.coroutines.launch
 
 @Composable
 @Preview
@@ -41,42 +48,52 @@ fun ScheduleScreenAlt() {
     val schedules: MutableList<Schedule> = remember {
         mutableStateListOf(
             Schedule(
-                subject = Subject(
+                lesson = Lesson(
                     name = "Jetpack Compose Part I",
-                    teacher = "Ma\'ruf"
+                    mentor = "Ma\'ruf"
                 ),
-                day = "Monday",
+                date = "11 November 2025",
                 time = "18.30 - 20.30"
             ),
             Schedule(
-                subject = Subject(
+                lesson = Lesson(
                     name = "Jetpack Compose Part II",
-                    teacher = "Fatih"
+                    mentor = "Fatih"
                 ),
-                day = "Tuesday",
+                date = "18 November 2025",
                 time = "18.30 - 20.30"
             ),
             Schedule(
-                subject = Subject(
+                lesson = Lesson(
                     name = "Firebase Part I",
-                    teacher = "Genta"
+                    mentor = "Genta"
                 ),
-                day = "Wednesday",
+                date = "25 November 2025",
                 time = "18.30 - 20.30"
             )
         )
     }
+    var scheduleIndexToEdit by remember { mutableIntStateOf(-1) }
     var isDialogOpen by remember { mutableStateOf(false) }
 
+    val scope = rememberCoroutineScope()
+
     if (isDialogOpen) {
-        AddScheduleDialog(
-            onSave = {
-                schedules.add(0, it)
+        AddEditScheduleDialog(
+            onAdd = { newSchedule ->
+                schedules.add(0, newSchedule)
                 isDialogOpen = false
+            },
+            onEdit = { newSchedule ->
+                isDialogOpen = false
+                schedules[scheduleIndexToEdit] = newSchedule
+                scheduleIndexToEdit = -1
             },
             onDismissRequest = {
                 isDialogOpen = false
-            }
+                scheduleIndexToEdit = -1
+            },
+            schedule = schedules.getOrNull(scheduleIndexToEdit)
         )
     }
 
@@ -86,6 +103,8 @@ fun ScheduleScreenAlt() {
             .background(Color.White)
             .statusBarsPadding()
     ) {
+        val lazyGridState = rememberLazyGridState()
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -109,34 +128,40 @@ fun ScheduleScreenAlt() {
         HorizontalDivider()
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
+            state = lazyGridState,
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(schedules) { schedule ->
+            itemsIndexed(schedules) { index, schedule ->
                 Column(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .clip(RoundedCornerShape(24.dp))
                         .background(Color.LightGray)
+                        .clickable {
+                            scheduleIndexToEdit = index
+                            isDialogOpen = true
+                        }
                         .padding(24.dp)
                 ) {
-                    Text("Subject name")
+                    Text("Lesson name")
                     Text(
-                        text = schedule.subject.name,
+                        text = schedule.lesson.name,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(8.dp))
-                    Text("Subject teacher")
+                    Text("Lesson mentor")
                     Text(
-                        text = schedule.subject.teacher,
+                        text = schedule.lesson.mentor,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(8.dp))
-                    Text("Day")
+                    Text("Date")
                     Text(
-                        text = schedule.day,
+                        text = schedule.date,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -156,6 +181,21 @@ fun ScheduleScreenAlt() {
                     ) {
                         Text("Delete")
                     }
+                }
+            }
+            item(
+                span = {
+                    GridItemSpan(2)
+                }
+            ) {
+                TextButton(
+                    onClick = {
+                        scope.launch {
+                            lazyGridState.animateScrollToItem(0)
+                        }
+                    }
+                ) {
+                    Text("Back to top")
                 }
             }
         }

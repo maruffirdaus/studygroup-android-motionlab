@@ -1,6 +1,6 @@
 package app.motion.android.common.model
 
-data class Subject(
+data class Lesson(
     val name: String,
-    val teacher: String
+    val mentor: String
 )
