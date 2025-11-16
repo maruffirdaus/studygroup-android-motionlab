@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -36,12 +39,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import app.motion.android.R
+import app.motion.android.ui.Main
+import app.motion.android.ui.theme.MotionAppTheme
 import app.motion.android.ui.theme.playwriteUsModern
 
 @Composable // Digunakan untuk mendeklarasikan sebuah fungsi composable
-@Preview // Digunakan untuk menampilkan preview dari sebuah fungsi composable
-fun LoginScreen() {
+fun LoginScreen(
+    navController: NavHostController
+) {
     val context = LocalContext.current // Digunakan untuk mendapatkan Context dari sebuah composable, Context merupakan sebuah objek yang merepresentasikan informasi tentang lingkungan aplikasi saat ini
 
     // Column digunakan untuk menyusun content secara vertikal
@@ -49,7 +57,9 @@ fun LoginScreen() {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFFFFF))
+            .verticalScroll(rememberScrollState())
             .systemBarsPadding() // Digunakan untuk memberikan padding terhadap content agar tidak overlap dengan system UI
+            .imePadding() // Digunakan untuk memberikan padding terhadap content agar tidak overlap dengan keyboard
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -135,13 +145,7 @@ fun LoginScreen() {
             Button(
                 onClick = {
                     if (username in users && password == users[username]) {
-                        Toast
-                            .makeText(
-                                context,
-                                "Welcome $username",
-                                Toast.LENGTH_SHORT
-                            )
-                            .show()
+                        navController.navigate(Main(username = username))
                     } else {
                         Toast
                             .makeText(
@@ -174,5 +178,15 @@ fun LoginScreen() {
                 }
             )
         }
+    }
+}
+
+@Composable
+@Preview
+private fun LoginScreenPreview() {
+    MotionAppTheme {
+        LoginScreen(
+            navController = rememberNavController()
+        )
     }
 }

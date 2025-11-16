@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -36,13 +35,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.motion.android.common.model.Schedule
 import app.motion.android.common.model.Lesson
+import app.motion.android.common.model.Schedule
+import app.motion.android.ui.theme.MotionAppTheme
 import kotlinx.coroutines.launch
 
 @Composable
-@Preview
-fun ScheduleScreen() {
+fun ScheduleScreen(
+    username: String,
+    innerPadding: PaddingValues = PaddingValues()
+) {
     val schedules: MutableList<Schedule> = remember {
         mutableStateListOf(
             Schedule(
@@ -99,7 +101,7 @@ fun ScheduleScreen() {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .statusBarsPadding()
+            .padding(innerPadding)
     ) {
         val lazyListState = rememberLazyListState()
 
@@ -111,7 +113,7 @@ fun ScheduleScreen() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Schedule",
+                text = "$username's Schedule",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -192,5 +194,15 @@ fun ScheduleScreen() {
                 }
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun ScheduleScreenPreview() {
+    MotionAppTheme {
+        ScheduleScreen(
+            username = "Motion"
+        )
     }
 }
