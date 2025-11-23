@@ -26,6 +26,7 @@ import androidx.compose.ui.window.Dialog
 import app.motion.android.common.model.Schedule
 import app.motion.android.common.model.Lesson
 import app.motion.android.ui.theme.MotionAppTheme
+import java.util.UUID
 
 @Composable
 fun AddEditScheduleDialog(
@@ -104,6 +105,11 @@ fun AddEditScheduleDialog(
             Button(
                 onClick = {
                     val newSchedule = Schedule(
+                        id = if (isEdit) {
+                            schedule.id
+                        } else {
+                            UUID.randomUUID().toString()
+                        },
                         lesson = Lesson(
                             name = lessonName,
                             mentor = lessonMentor

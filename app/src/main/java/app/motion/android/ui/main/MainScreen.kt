@@ -1,34 +1,60 @@
 package app.motion.android.ui.main
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import app.motion.android.R
 import app.motion.android.ui.about.AboutScreen
 import app.motion.android.ui.schedule.ScheduleScreen
 import app.motion.android.ui.theme.MotionAppTheme
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MainScreen(
     username: String,
     navController: NavHostController
 ) {
-    val items = listOf("Schedule", "About")
-    val selectedIcons = listOf(R.drawable.ic_calendar_month_filled, R.drawable.ic_info_filled)
-    val unselectedIcons = listOf(R.drawable.ic_calendar_month, R.drawable.ic_info)
-    var selectedItem by remember { mutableIntStateOf(0) }
+    val viewModel: MainViewModel = koinViewModel()
+    val uiState by viewModel.uiState.collectAsState()
 
+    MainScreenContent(
+        username = username,
+        uiState = uiState,
+        onSelectedNavItemChange = viewModel::changeSelectedNavItem,
+        scheduleScreen = { username, innerPadding ->
+            ScheduleScreen(
+                username = username,
+                innerPadding = innerPadding
+            )
+        },
+        aboutScreen = { navController, innerPadding ->
+            AboutScreen(
+                navController = navController,
+                innerPadding = innerPadding
+            )
+        },
+        navController = navController
+    )
+}
+
+@Composable
+fun MainScreenContent(
+    username: String,
+    uiState: MainUiState,
+    onSelectedNavItemChange: (NavItem) -> Unit,
+    scheduleScreen: @Composable (String, PaddingValues) -> Unit,
+    aboutScreen: @Composable (NavHostController, PaddingValues) -> Unit,
+    navController: NavHostController
+) {
     // Scaffold digunakan untuk menyusun layout berdasarkan Material Design
     // Scaffold tidak wajib digunakan, terlebih ketika mengimplementasikan custom design system
     // Untuk menyusun NavigationBar tanpa Scaffold, dapat menggunakan Column
@@ -36,40 +62,35 @@ fun MainScreen(
         bottomBar = {
             // NavigationBar bawaan Material Design, untuk membuat versi custom dapat menggunakan Row
             NavigationBar {
-                items.forEachIndexed { index, item ->
+                NavItem.entries.forEach { item ->
+                    val isSelected = uiState.selectedNavItem == item
+
                     NavigationBarItem(
-                        selected = selectedItem == index,
+                        selected = isSelected,
                         onClick = {
-                            selectedItem = index
+                            onSelectedNavItemChange(item)
                         },
                         icon = {
                             Icon(
-                                painter = if (selectedItem == index) {
-                                    painterResource(selectedIcons[index])
+                                painter = if (isSelected) {
+                                    painterResource(item.selectedIcon)
                                 } else {
-                                    painterResource(unselectedIcons[index])
+                                    painterResource(item.unselectedIcon)
                                 },
-                                contentDescription = item
+                                contentDescription = item.label
                             )
                         },
                         label = {
-                            Text(item)
+                            Text(item.label)
                         }
                     )
                 }
             }
         }
     ) { innerPadding ->
-        when (selectedItem) {
-            0 -> ScheduleScreen(
-                username = username,
-                innerPadding = innerPadding
-            )
-
-            1 -> AboutScreen(
-                navController = navController,
-                innerPadding = innerPadding
-            )
+        when (uiState.selectedNavItem) {
+            NavItem.SCHEDULE -> scheduleScreen(username, innerPadding)
+            NavItem.ABOUT -> aboutScreen(navController, innerPadding)
         }
     }
 }
@@ -78,8 +99,19 @@ fun MainScreen(
 @Preview
 private fun MainScreenPreview() {
     MotionAppTheme {
-        MainScreen(
+        MainScreenContent(
             username = "Motion",
+            uiState = MainUiState(
+                selectedNavItem = NavItem.ABOUT
+            ),
+            onSelectedNavItemChange = {},
+            scheduleScreen = { _, _ -> },
+            aboutScreen = { navController, innerPadding ->
+                AboutScreen(
+                    navController = navController,
+                    innerPadding = innerPadding
+                )
+            },
             navController = rememberNavController()
         )
     }

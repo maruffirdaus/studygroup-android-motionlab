@@ -24,10 +24,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,9 +43,30 @@ import app.motion.android.R
 import app.motion.android.ui.Main
 import app.motion.android.ui.theme.MotionAppTheme
 import app.motion.android.ui.theme.playwriteUsModern
+import org.koin.compose.viewmodel.koinViewModel
+
+@Composable
+fun LoginScreen(
+    navController: NavHostController
+) {
+    val viewModel: LoginViewModel = koinViewModel()
+    val uiState by viewModel.uiState.collectAsState()
+
+    LoginScreenContent(
+        uiState = uiState,
+        onUsernameChange = viewModel::changeUsername,
+        onPasswordChange = viewModel::changePassword,
+        onPasswordVisibilityToggle = viewModel::togglePasswordVisibility,
+        navController = navController
+    )
+}
 
 @Composable // Digunakan untuk mendeklarasikan sebuah fungsi composable
-fun LoginScreen(
+fun LoginScreenContent(
+    uiState: LoginUiState,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onPasswordVisibilityToggle: () -> Unit,
     navController: NavHostController
 ) {
     val context = LocalContext.current // Digunakan untuk mendapatkan Context dari sebuah composable, Context merupakan sebuah objek yang merepresentasikan informasi tentang lingkungan aplikasi saat ini
@@ -64,10 +83,6 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var username by remember { mutableStateOf("") } // Berisi nilai default dari username
-        var password by remember { mutableStateOf("") } // Berisi nilai default dari password
-        var isPasswordVisible by remember { mutableStateOf(false) }
-
         val users = mapOf(
             "admin" to "admin",
             "member" to "member"
@@ -87,10 +102,8 @@ fun LoginScreen(
         )
         Spacer(Modifier.height(64.dp))
         TextField(
-            value = username,
-            onValueChange = { value ->
-                username = value // Setiap kali value dari TextField berubah, akan mengubah state username
-            },
+            value = uiState.username,
+            onValueChange = onUsernameChange,
             label = {
                 Text("Username")
             },
@@ -98,27 +111,23 @@ fun LoginScreen(
         )
         Spacer(Modifier.height(12.dp))
         TextField(
-            value = password,
-            onValueChange = { value ->
-                password = value
-            },
+            value = uiState.password,
+            onValueChange = onPasswordChange,
             label = {
                 Text("Password")
             },
             // Digunakan untuk menampilkan icon pada akhir TextField
             trailingIcon = {
                 IconButton(
-                    onClick = {
-                        isPasswordVisible = !isPasswordVisible // Mengubah state isPasswordVisible saat icon ditekan
-                    }
+                    onClick = onPasswordVisibilityToggle
                 ) {
                     Icon(
-                        painter = if (isPasswordVisible) {
+                        painter = if (uiState.isPasswordVisible) {
                             painterResource(R.drawable.ic_visibility_off)
                         } else {
                             painterResource(R.drawable.ic_visibility)
                         },
-                        contentDescription = if (isPasswordVisible) {
+                        contentDescription = if (uiState.isPasswordVisible) {
                             "Hide password"
                         } else {
                             "Show password"
@@ -127,7 +136,7 @@ fun LoginScreen(
                 }
             },
             // Digunakan untuk mengubah visualisasi password menjadi bintang (*)
-            visualTransformation = if (isPasswordVisible) {
+            visualTransformation = if (uiState.isPasswordVisible) {
                 VisualTransformation.None
             } else {
                 PasswordVisualTransformation()
@@ -144,8 +153,8 @@ fun LoginScreen(
         ) {
             Button(
                 onClick = {
-                    if (username in users && password == users[username]) {
-                        navController.navigate(Main(username = username))
+                    if (uiState.username in users && uiState.password == users[uiState.username]) {
+                        navController.navigate(Main(username = uiState.username))
                     } else {
                         Toast
                             .makeText(
@@ -185,7 +194,11 @@ fun LoginScreen(
 @Preview
 private fun LoginScreenPreview() {
     MotionAppTheme {
-        LoginScreen(
+        LoginScreenContent(
+            uiState = LoginUiState(),
+            onUsernameChange = {},
+            onPasswordChange = {},
+            onPasswordVisibilityToggle = {},
             navController = rememberNavController()
         )
     }
