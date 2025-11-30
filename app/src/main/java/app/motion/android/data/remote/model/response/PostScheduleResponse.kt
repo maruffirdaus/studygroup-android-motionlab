@@ -1,8 +1,8 @@
-package app.motion.android.data.remote.model
+package app.motion.android.data.remote.model.response
 
 import com.google.gson.annotations.SerializedName
 
-data class PostSchedulesResponse(
+data class PostScheduleResponse(
 
 	@field:SerializedName("schedule")
 	val schedule: Schedule,

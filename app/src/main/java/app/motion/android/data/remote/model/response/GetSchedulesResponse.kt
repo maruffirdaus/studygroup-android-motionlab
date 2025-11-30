@@ -1,4 +1,4 @@
-package app.motion.android.data.remote.model
+package app.motion.android.data.remote.model.response
 
 import com.google.gson.annotations.SerializedName
 

@@ -3,6 +3,7 @@ package app.motion.android.ui.schedule
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,11 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -96,70 +99,110 @@ fun ScheduleScreen(
             }
         }
         HorizontalDivider()
-        LazyColumn(
-            state = lazyListState,
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(uiState.schedules) { schedule ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(Color.LightGray)
-                        .clickable {
-                            viewModel.openDialog(schedule)
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                state = lazyListState,
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                uiState.errorMessage?.let { errorMessage ->
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = errorMessage,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Button(
+                                onClick = {
+                                    viewModel.refreshSchedules()
+                                }
+                            ) {
+                                Text("Refresh")
+                            }
                         }
-                        .padding(24.dp)
-                ) {
-                    Text("Lesson name")
-                    Text(
-                        text = schedule.lesson.name,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text("Lesson mentor")
-                    Text(
-                        text = schedule.lesson.mentor,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text("Date")
-                    Text(
-                        text = schedule.date,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text("Time")
-                    Text(
-                        text = schedule.time,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(24.dp))
-                    Button(
-                        onClick = {
-                            viewModel.deleteSchedule(schedule.id)
-                        },
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text("Delete")
                     }
                 }
-            }
-            item {
-                TextButton(
-                    onClick = {
-                        scope.launch {
-                            lazyListState.animateScrollToItem(0)
+                if (uiState.schedules.isEmpty()) {
+                    item {
+                        Text("No schedules found")
+                    }
+                }
+                items(uiState.schedules) { schedule ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(Color.LightGray)
+                            .clickable {
+                                viewModel.openDialog(schedule)
+                            }
+                            .padding(24.dp)
+                    ) {
+                        Text("Lesson name")
+                        Text(
+                            text = schedule.lesson.name,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text("Lesson mentor")
+                        Text(
+                            text = schedule.lesson.mentor,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text("Date")
+                        Text(
+                            text = schedule.date,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text("Time")
+                        Text(
+                            text = schedule.time,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(24.dp))
+                        Button(
+                            onClick = {
+                                viewModel.deleteSchedule(schedule.id)
+                            },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text("Delete")
                         }
                     }
-                ) {
-                    Text("Back to top")
+                }
+                item {
+                    TextButton(
+                        onClick = {
+                            scope.launch {
+                                lazyListState.animateScrollToItem(0)
+                            }
+                        }
+                    ) {
+                        Text("Back to top")
+                    }
                 }
             }
         }

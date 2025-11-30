@@ -13,7 +13,7 @@ object ScheduleConfig {
             .addInterceptor(loggingInterceptor)
             .build()
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://restaurant-api.dicoding.dev/")
+            .baseUrl("https://api.selesainst.id/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()

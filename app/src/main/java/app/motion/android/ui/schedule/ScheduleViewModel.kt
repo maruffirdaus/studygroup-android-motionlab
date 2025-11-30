@@ -16,26 +16,94 @@ class ScheduleViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun refreshSchedules() {
-        _uiState.update { state ->
-            state.copy(schedules = repository.getSchedules())
+        viewModelScope.launch {
+            _uiState.update { state ->
+                state.copy(isLoading = true)
+            }
+            try {
+                _uiState.update { state ->
+                    state.copy(schedules = repository.getSchedules())
+                }
+                clearErrorMessage()
+            } catch (e: Exception) {
+                _uiState.update { state ->
+                    state.copy(errorMessage = e.message)
+                }
+            } finally {
+                _uiState.update { state ->
+                    state.copy(isLoading = false)
+                }
+            }
         }
     }
 
     fun addSchedule(schedule: Schedule) {
         viewModelScope.launch {
-            repository.addSchedule(schedule)
-            refreshSchedules()
+            _uiState.update { state ->
+                state.copy(isLoading = true)
+            }
+            try {
+                repository.addSchedule(schedule)
+                _uiState.update { state ->
+                    state.copy(schedules = repository.getSchedules())
+                }
+                clearErrorMessage()
+            } catch (e: Exception) {
+                _uiState.update { state ->
+                    state.copy(errorMessage = e.message)
+                }
+            } finally {
+                _uiState.update { state ->
+                    state.copy(isLoading = false)
+                }
+            }
         }
     }
 
     fun editSchedule(schedule: Schedule) {
-        repository.editSchedule(schedule)
-        refreshSchedules()
+        viewModelScope.launch {
+            _uiState.update { state ->
+                state.copy(isLoading = true)
+            }
+            try {
+                repository.editSchedule(schedule)
+                _uiState.update { state ->
+                    state.copy(schedules = repository.getSchedules())
+                }
+                clearErrorMessage()
+            } catch (e: Exception) {
+                _uiState.update { state ->
+                    state.copy(errorMessage = e.message)
+                }
+            } finally {
+                _uiState.update { state ->
+                    state.copy(isLoading = false)
+                }
+            }
+        }
     }
 
-    fun deleteSchedule(id: String) {
-        repository.deleteSchedule(id)
-        refreshSchedules()
+    fun deleteSchedule(id: Int) {
+        viewModelScope.launch {
+            _uiState.update { state ->
+                state.copy(isLoading = true)
+            }
+            try {
+                repository.deleteSchedule(id)
+                _uiState.update { state ->
+                    state.copy(schedules = repository.getSchedules())
+                }
+                clearErrorMessage()
+            } catch (e: Exception) {
+                _uiState.update { state ->
+                    state.copy(errorMessage = e.message)
+                }
+            } finally {
+                _uiState.update { state ->
+                    state.copy(isLoading = false)
+                }
+            }
+        }
     }
 
     fun openDialog(scheduleToEdit: Schedule? = null) {
@@ -53,6 +121,12 @@ class ScheduleViewModel(
                 scheduleToEdit = null,
                 isDialogOpen = false
             )
+        }
+    }
+
+    fun clearErrorMessage() {
+        _uiState.update { state ->
+            state.copy(errorMessage = null)
         }
     }
 }
