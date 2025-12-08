@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.0.21"
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -57,6 +58,9 @@ dependencies {
     implementation("io.insert-koin:koin-compose:4.1.0")
     implementation("io.insert-koin:koin-compose-viewmodel:4.1.0")
     implementation("io.insert-koin:koin-compose-viewmodel-navigation:4.1.0")
+    implementation("androidx.room:room-runtime:2.8.4")
+    ksp("androidx.room:room-compiler:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
