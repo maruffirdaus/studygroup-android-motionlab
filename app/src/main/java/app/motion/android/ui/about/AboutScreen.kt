@@ -25,12 +25,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import app.motion.android.R
 import app.motion.android.ui.theme.MotionAppTheme
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AboutScreen(
     navController: NavHostController,
     innerPadding: PaddingValues = PaddingValues()
 ) {
+    val viewModel: AboutViewModel = koinViewModel()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -58,6 +61,7 @@ fun AboutScreen(
         Spacer(Modifier.height(16.dp))
         Button(
             onClick = {
+                viewModel.logout()
                 navController.popBackStack()
             }
         ) {

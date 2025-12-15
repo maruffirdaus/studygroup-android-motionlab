@@ -3,6 +3,7 @@ package app.motion.android.ui.schedule
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -84,6 +86,7 @@ fun ScheduleScreen(
         ) {
             Text(
                 text = "$username's Schedule",
+                modifier = Modifier.weight(1f),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -96,70 +99,81 @@ fun ScheduleScreen(
             }
         }
         HorizontalDivider()
-        LazyColumn(
-            state = lazyListState,
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(uiState.schedules) { schedule ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(Color.LightGray)
-                        .clickable {
-                            viewModel.openDialog(schedule)
-                        }
-                        .padding(24.dp)
-                ) {
-                    Text("Lesson name")
-                    Text(
-                        text = schedule.lesson.name,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text("Lesson mentor")
-                    Text(
-                        text = schedule.lesson.mentor,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text("Date")
-                    Text(
-                        text = schedule.date,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text("Time")
-                    Text(
-                        text = schedule.time,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(24.dp))
-                    Button(
-                        onClick = {
-                            viewModel.deleteSchedule(schedule.id)
-                        },
-                        modifier = Modifier.align(Alignment.End)
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(
+                state = lazyListState,
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(uiState.schedules) { schedule ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(Color.LightGray)
+                            .clickable {
+                                viewModel.openDialog(schedule)
+                            }
+                            .padding(24.dp)
                     ) {
-                        Text("Delete")
+                        Text("Lesson name")
+                        Text(
+                            text = schedule.lesson.name,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text("Lesson mentor")
+                        Text(
+                            text = schedule.lesson.mentor,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text("Date")
+                        Text(
+                            text = schedule.date,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text("Time")
+                        Text(
+                            text = schedule.time,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(24.dp))
+                        Button(
+                            onClick = {
+                                viewModel.deleteSchedule(schedule.id)
+                            },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text("Delete")
+                        }
                     }
                 }
-            }
-            item {
-                TextButton(
-                    onClick = {
-                        scope.launch {
-                            lazyListState.animateScrollToItem(0)
+                item {
+                    TextButton(
+                        onClick = {
+                            scope.launch {
+                                lazyListState.animateScrollToItem(0)
+                            }
                         }
+                    ) {
+                        Text("Back to top")
                     }
-                ) {
-                    Text("Back to top")
                 }
             }
         }

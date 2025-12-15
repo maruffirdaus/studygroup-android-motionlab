@@ -1,6 +1,7 @@
 package app.motion.android
 
 import android.app.Application
+import app.motion.android.di.firebaseModule
 import app.motion.android.di.repositoryModule
 import app.motion.android.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
@@ -13,7 +14,7 @@ class MotionApplication : Application() {
         startKoin {
             androidLogger()
             androidContext(this@MotionApplication)
-            modules(repositoryModule, viewModelModule)
+            modules(firebaseModule, repositoryModule, viewModelModule)
         }
     }
 }
